@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "document_bucket" {
-  bucket = "${var.stack_name}-document-bucket"
+  bucket = "exam-test-document-bucket"
 }
 
 resource "aws_s3_bucket_policy" "document_bucket_policy" {
