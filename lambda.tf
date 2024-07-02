@@ -10,61 +10,48 @@ resource "aws_iam_role" "rag_lambda_role" {
       }
     }]
   })
+}
 
-  inline_policy {
-    name = "rag_policy"
-    policy = jsonencode({
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Effect = "Allow"
-          Action = [
-            "bedrock:InvokeModel"
-          ]
-          Resource = "*"
-        },
-        {
-          Effect = "Allow"
-          Action = [
-            "s3:GetObject"
-          ]
-          Resource = "arn:aws:s3:::${aws_s3_bucket.document_bucket.bucket}/*"
-        },
-        {
-          Effect = "Allow"
-          Action = [
-            "s3:ListBucket"
-          ]
-          Resource = "arn:aws:s3:::${aws_s3_bucket.document_bucket.bucket}"
-        },
-        {
-          Effect = "Allow"
-          Action = [
-            "s3:ListAllMyBuckets"
-          ]
-          Resource = "*"
-        },
-        {
-          Effect = "Allow"
-          Action = [
-            "ecr:GetDownloadUrlForLayer",
-            "ecr:BatchGetImage",
-            "ecr:BatchCheckLayerAvailability"
-          ]
-          Resource = "*"
-        },
-        {
-          Effect = "Allow"
-          Action = [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents"
-          ]
-          Resource = "*"
-        }
-      ]
-    })
-  }
+resource "aws_iam_role_policy_attachment" "attach_lambda_basic_execution_role" {
+  role       = aws_iam_role.rag_lambda_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy" "rag_policy" {
+  name = "rag_policy"
+  role = aws_iam_role.rag_lambda_role.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:InvokeModel"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          "arn:aws:s3:::${aws_s3_bucket.document_bucket.bucket}",
+          "arn:aws:s3:::${aws_s3_bucket.document_bucket.bucket}/*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:BatchCheckLayerAvailability"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
 }
 
 resource "aws_lambda_function" "rag_function" {
