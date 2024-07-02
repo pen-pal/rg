@@ -43,6 +43,24 @@ resource "aws_iam_role" "rag_lambda_role" {
             "s3:ListAllMyBuckets"
           ]
           Resource = "*"
+        },
+        {
+          Effect = "Allow"
+          Action = [
+            "ecr:GetDownloadUrlForLayer",
+            "ecr:BatchGetImage",
+            "ecr:BatchCheckLayerAvailability"
+          ]
+          Resource = "*"
+        },
+        {
+          Effect = "Allow"
+          Action = [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+          ]
+          Resource = "*"
         }
       ]
     })
